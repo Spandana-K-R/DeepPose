@@ -73,7 +73,7 @@ if __name__ == "__main__":
   start = time.time()
 
   model = DeepPose()
-  output = model(torch.ones([1, 196, 196, 3]))
+  output = model(torch.ones([10, 196, 196, 3]))
   print(f"output shape : {output.shape}")
 
   end = time.time()
