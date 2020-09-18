@@ -4,6 +4,7 @@ import torch.nn as nn
 
 import Dataset
 import Network
+import cascade_train
 
 # for reproducible results
 torch.manual_seed(0)
@@ -21,14 +22,15 @@ def train(epochs, model, train_dl, val_dl, optimizer, criterion, train_size, val
     train_loss, val_loss = 0, 0
     
     # Training
+    model.train()
     for batch_idx,(batch_imgs, batch_labels) in enumerate(train_dl):
-      model.train()
       optimizer.zero_grad()
       batch_imgs,batch_labels = batch_imgs.float().to(device),batch_labels.to(device)
       output = model(batch_imgs)
       
-      batch_labels = batch_labels[:, :2, :]
-      # Reshape the outputs batch_size x 28 -> batch_size x 2 x 14
+      batch_labels = batch_labels[:, :2, :].permute((0,2,1))
+      # print(output.shape, batch_labels.shape)
+      # Reshape the outputs of shape (batch_size x 28) -> (batch_size x 14 x 2)
       output = output.view(batch_labels.shape)
       
       loss = criterion(output,batch_labels.float())
@@ -40,15 +42,15 @@ def train(epochs, model, train_dl, val_dl, optimizer, criterion, train_size, val
     train_loss_lst.append(train_loss/train_size)
     
     # Validation
+    model.eval()
     for batch_idx,(batch_imgs,batch_labels) in enumerate(val_dl):
-      model.eval()
       batch_imgs, batch_labels = batch_imgs.float().to(device),batch_labels.to(device)
       output = model(batch_imgs)
       
-      batch_labels = batch_labels[:, :2, :]
-      # Reshape the outputs batch_size x 28 -> batch_size x 2 x 14
+      batch_labels = batch_labels[:, :2, :].permute((0,2,1))
+      # Reshape the outputs of shape (batch_size x 28) -> (batch_size x 14 x 2)
       output = output.view(batch_labels.shape)
-      loss = criterion(output,batch_labels.float())
+      loss = criterion(output, batch_labels.float())
       val_loss += loss.item()
     
     val_loss_lst.append(val_loss/val_size)
@@ -95,6 +97,9 @@ def main():
                                                               criterion=criterion, 
                                                               train_size=train_size, 
                                                               val_size=val_size)
+
+  # first cascading stage S=2
+  stage2_dataset = cascade_train.LSP_cascade_Dataset(train_dataset, model)
 
 
 if __name__ == "__main__":

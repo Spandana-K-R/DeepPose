@@ -65,44 +65,44 @@ class LSP_Dataset(torch.utils.data.Dataset):
     return self.array_of_images.shape[0]
   
   
-  def print_sample(self, sample_idx):
-    if self.is_lspet:
-      file_name = f"im{sample_idx + 1:05d}.jpg"
-    else:
-      file_name = f"im{sample_idx + 1:04d}.jpg"
+def print_sample(dataset, sample_idx):
+  if dataset.is_lspet:
+    file_name = f"im{sample_idx + 1:05d}.jpg"
+  else:
+    file_name = f"im{sample_idx + 1:04d}.jpg"
 
-    original_img   = plt.imread(os.path.join(self.path, "images", file_name))
-    visualized_img = plt.imread(os.path.join(self.path, "visualized", file_name))
-    normalized_img = self.array_of_images[sample_idx]
+  original_img   = plt.imread(os.path.join(dataset.path, "images", file_name))
+  visualized_img = plt.imread(os.path.join(dataset.path, "visualized", file_name))
+  normalized_img = dataset.array_of_images[sample_idx]
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, gridspec_kw={'width_ratios': [1, 1, 2]}) # figsize=(14,14)
-    
-    ax1.title.set_text('Original')
-    ax1.imshow(original_img)
-    for i in range(14):
-      if self.joint_data[2, i, sample_idx] == 0.0: c = 'b'
-      else: c = 'r'
-      ax1.plot(self.joint_data[0, i, sample_idx], self.joint_data[1, i, sample_idx],'.', color=c)
+  fig, (ax1, ax2, ax3) = plt.subplots(1, 3, gridspec_kw={'width_ratios': [1, 1, 2]}) # figsize=(14,14)
+  
+  ax1.title.set_text('Original')
+  ax1.imshow(original_img)
+  for i in range(14):
+    if dataset.joint_data[2, i, sample_idx] == 0.0: c = 'b'
+    else: c = 'r'
+    ax1.plot(dataset.joint_data[0, i, sample_idx], dataset.joint_data[1, i, sample_idx],'.', color=c)
 
-    ax2.title.set_text('Visualized')
-    ax2.imshow(visualized_img)
+  ax2.title.set_text('Visualized')
+  ax2.imshow(visualized_img)
 
-    ax3.title.set_text('Normalized')
-    ax3.imshow(normalized_img)
-    for i in range(14):
-      if self.__getitem__(sample_idx)[1][2, i] == 0.0: c = 'b'
-      else: c = 'r'
-      ax3.plot(self.max_h*(0.5 + self.__getitem__(sample_idx)[1][0, i]), 
-               self.max_h*(0.5 + self.__getitem__(sample_idx)[1][1, i]),
-              '.', 
-              color=c)
-    
-    fig.tight_layout()
-    plt.show()
+  ax3.title.set_text('Normalized')
+  ax3.imshow(normalized_img)
+  for i in range(14):
+    if dataset.__getitem__(sample_idx)[1][2, i] == 0.0: c = 'b'
+    else: c = 'r'
+    ax3.plot(dataset.max_h*(0.5 + dataset.__getitem__(sample_idx)[1][0, i]), 
+              dataset.max_h*(0.5 + dataset.__getitem__(sample_idx)[1][1, i]),
+            '.', 
+            color=c)
+  
+  fig.tight_layout()
+  plt.show()
 
 if __name__ == "__main__":
   dataset = LSP_Dataset()
-  dataset.print_sample(3)
+  print_sample(dataset, 3)
 
     # self.max_h, self.max_w, self.min_h, self.min_w = 0, 0, float('inf'), float('inf')
     # for file_name in imgs_list:
