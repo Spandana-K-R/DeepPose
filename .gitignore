@@ -1,5 +1,5 @@
-.git/
 .ipynb_checkpoints/
+try.ipynb
 __pycache__/
 lsp_dataset/
 lspet_dataset/
